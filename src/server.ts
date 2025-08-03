@@ -3,6 +3,7 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import fs from "node:fs/promises";
+import { CreateMessageRequestSchema, CreateMessageResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 const server = new McpServer({
   name: "test-video",
@@ -110,6 +111,81 @@ openWorldHint: false,
   }
   
 });
+
+server.tool("create-random-user", "Create a random user with fake data", {
+title: "Create random User",
+readOnlyHint: false,
+destructiveHint: false,
+idempotentHint: false,
+openWorldHint: false,
+}, async() => {
+  const res = await server.server.request({
+    method: "sampling/createMessage",
+    params: {
+      messages: [
+        {
+          role: "user",
+          content: {
+            type: "text",
+            text: "Generate a random user with fake data. The user should have a valid name, email, address, and phone number. Return this data as a json object with no other text or formatter so it can be used with JSON.parse"
+          }
+        }],
+      maxTokens: 1024,
+    }
+  }, CreateMessageResultSchema)
+
+  if(res.content.type !== "text"){
+    return{
+      content: [
+        {
+          type: "text",
+          text: "Failed to generate random user"
+        }
+      ]
+    }
+  }
+
+  try {
+    const fakeUser = JSON.parse(res.content.text.trim().replace(/^```json/, "")
+          .replace(/```$/, "")
+          ).trim();
+
+    const id = await createUser(fakeUser);
+    return {
+      content: [
+        {
+          type: "text",
+          text: `User ${id} created successfully!`
+        }
+      ]
+    };      
+  } catch {
+    return{
+      content: [
+        {
+          type: "text",
+          text: "Failed to generate random user"
+        }
+      ]
+    }
+  }
+});
+
+server.prompt("generate-fake-user", "Generate a fake user based on a given name", {
+  name: z.string()
+}, ({ name }) => {
+  return {
+    messages: [
+      {
+        role: "user",
+        content: {
+          type: "text",
+          text: `Generate a fake user with the name ${name}. The user should have a valid email, address, and phone number.`
+        }
+      }
+    ]
+  };
+})
 
 async function createUser(user:{
   name: string;
