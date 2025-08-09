@@ -3,7 +3,7 @@ import { McpServer, ResourceTemplate } from "@modelcontextprotocol/sdk/server/mc
 import { StdioServerTransport } from "@modelcontextprotocol/sdk/server/stdio.js";
 import { z } from "zod";
 import fs from "node:fs/promises";
-import { CreateMessageRequestSchema, CreateMessageResultSchema } from "@modelcontextprotocol/sdk/types.js";
+import { CreateMessageResultSchema } from "@modelcontextprotocol/sdk/types.js";
 
 const server = new McpServer({
   name: "test-video",
@@ -52,7 +52,7 @@ server.resource("user-details", new ResourceTemplate("users://{userId}/profile",
       type: "json"
     }
   }).then(m => m.default);
-  const user = users.find(u => u.id === parseInt(userId as string, 10));
+  const user = users.find(u => u.id === parseInt(userId as string));
 
   if(user == null){
     return {
@@ -87,7 +87,7 @@ title: "Create User",
 readOnlyHint: false,
 destructiveHint: false,
 idempotentHint: false,
-openWorldHint: false,
+openWorldHint: true,
 }, async (params) => {
   try {
     const id = await createUser(params)
@@ -147,8 +147,8 @@ openWorldHint: false,
 
   try {
     const fakeUser = JSON.parse(res.content.text.trim().replace(/^```json/, "")
-          .replace(/```$/, "")
-          ).trim();
+          .replace(/```$/, "").trim()
+          );
 
     const id = await createUser(fakeUser);
     return {
