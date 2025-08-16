@@ -88,7 +88,7 @@ readOnlyHint: false,
 destructiveHint: false,
 idempotentHint: false,
 openWorldHint: true,
-}, async (params) => {
+}, async params => {
   try {
     const id = await createUser(params)
     return {

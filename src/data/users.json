@@ -95,13 +95,19 @@
     "email": "testuser@example.com",
     "address": "123 Main St, Springfield",
     "phone": "555-1234"
-  }
-  ,
+  },
   {
     "id": 14,
     "name": "Kyle",
     "email": "test@test3.com",
     "address": "12355 main st2",
     "phone": "21312312"
+  },
+  {
+    "id": 15,
+    "name": "Mat",
+    "email": "mat@test.com",
+    "address": "33 street",
+    "phone": "2312321"
   }
 ]
